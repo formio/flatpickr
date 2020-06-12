@@ -941,7 +941,7 @@ function FlatpickrInstance(
       );
     };
 
-    self.monthsDropdownContainer.tabIndex = -1;
+    self.monthsDropdownContainer.tabIndex = 0;
 
     self.monthsDropdownContainer.innerHTML = "";
 
@@ -1133,7 +1133,7 @@ function FlatpickrInstance(
       "input"
     )[0] as HTMLInputElement;
 
-    self.hourElement.tabIndex = self.minuteElement.tabIndex = -1;
+    self.hourElement.tabIndex = self.minuteElement.tabIndex = 0;
 
     self.hourElement.value = pad(
       self.latestSelectedDateObj
@@ -1208,7 +1208,7 @@ function FlatpickrInstance(
         ]
       );
       self.amPM.title = self.l10n.toggleTitle;
-      self.amPM.tabIndex = -1;
+      self.amPM.tabIndex = 0;
       self.timeContainer.appendChild(self.amPM);
     }
 
@@ -1588,7 +1588,7 @@ function FlatpickrInstance(
     if (self.daysContainer !== undefined)
       return (
         elem.className.indexOf("hidden") === -1 &&
-        self.daysContainer.contains(elem)
+        self.daysContainer.contains(elem) && self.daysContainer !== elem
       );
     return false;
   }
@@ -1717,6 +1717,10 @@ function FlatpickrInstance(
           break;
 
         case 9:
+          if (!!self.timeContainer && eventTarget === self.daysContainer) {
+            self.showTimeInput = true;
+            return;
+          }
           if (isTimeObj) {
             const elems = ([
               self.hourElement,
@@ -1734,14 +1738,6 @@ function FlatpickrInstance(
               e.preventDefault();
               (target || self._input).focus();
             }
-          } else if (
-            !self.config.noCalendar &&
-            self.daysContainer &&
-            self.daysContainer.contains(eventTarget as Node) &&
-            e.shiftKey
-          ) {
-            e.preventDefault();
-            self._input.focus();
           }
 
           break;
