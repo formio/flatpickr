@@ -1717,6 +1717,12 @@ function FlatpickrInstance(
           break;
 
         case 9:
+          if (!self.config.enableTime && eventTarget === self.daysContainer) {
+            e.preventDefault();
+            self._input.focus();
+            return;
+          }
+
           if (!!self.timeContainer && eventTarget === self.daysContainer) {
             self.showTimeInput = true;
             return;
