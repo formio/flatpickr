@@ -1742,7 +1742,7 @@ function FlatpickrInstance(
             if (i !== -1) {
               const target = elems[i + (e.shiftKey ? -1 : 1)];
               e.preventDefault();
-              (target || self._input).focus();
+              (target || self.daysContainer || self._input).focus();
             }
           }
 
