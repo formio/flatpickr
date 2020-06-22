@@ -1693,6 +1693,11 @@ function FlatpickrInstance(
 
         case 38:
         case 40:
+          if ((window.navigator.userAgent.indexOf("MSIE") !== -1 || navigator.msMaxTouchPoints !== undefined) &&
+          eventTarget === self.monthsDropdownContainer) {
+            break;
+          }
+
           e.preventDefault();
           const delta = e.keyCode === 40 ? 1 : -1;
           if (
