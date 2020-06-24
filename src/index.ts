@@ -342,7 +342,7 @@ function FlatpickrInstance(
 
     if (
       year / 1000 > 1 ||
-      (event.key === "Enter" && !/[^\d]/.test(year.toString()))
+      (eventTarget === self.currentYearElement && event.key === "Enter" && !/[^\d]/.test(year.toString()))
     ) {
       changeYear(year);
     }
@@ -1651,8 +1651,11 @@ function FlatpickrInstance(
             e.preventDefault();
             updateTime();
             focusAndClose();
-          } else selectDate(e);
-
+          } else if (eventTarget === self.monthsDropdownContainer) {
+            break;
+          } else {
+            selectDate(e);
+          }
           break;
 
         case 27: // escape
@@ -1693,8 +1696,7 @@ function FlatpickrInstance(
 
         case 38:
         case 40:
-          if ((window.navigator.userAgent.indexOf("MSIE") !== -1 || navigator.msMaxTouchPoints !== undefined) &&
-          eventTarget === self.monthsDropdownContainer) {
+          if (eventTarget === self.monthsDropdownContainer) {
             break;
           }
 
