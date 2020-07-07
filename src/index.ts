@@ -1620,7 +1620,7 @@ function FlatpickrInstance(
       ? element.contains(eventTarget as HTMLElement)
       : eventTarget === self._input;
     const allowInput = self.config.allowInput;
-    const allowKeydown = self.isOpen && (!allowInput || !isInput);
+    const allowKeydown = self.isOpen && (!isInput);
     const allowInlineKeydown = self.config.inline && isInput && !allowInput;
 
     if (e.keyCode === 13 && isInput) {
@@ -1632,10 +1632,15 @@ function FlatpickrInstance(
             ? self.config.altFormat
             : self.config.dateFormat
         );
-        return (eventTarget as HTMLElement).blur();
+        if (!self.isOpen) {
+          self.open();
+        }
       } else {
         self.open();
       }
+    } else if (e.keyCode === 27 && isInput) {
+      e.preventDefault();
+      focusAndClose();
     } else if (
       isCalendarElem(eventTarget as HTMLElement) ||
       allowKeydown ||
@@ -1678,8 +1683,7 @@ function FlatpickrInstance(
 
             if (
               self.daysContainer !== undefined &&
-              (allowInput === false ||
-                (document.activeElement && isInView(document.activeElement)))
+              (document.activeElement && self.daysContainer.contains(document.activeElement))
             ) {
               const delta = e.keyCode === 39 ? 1 : -1;
 
