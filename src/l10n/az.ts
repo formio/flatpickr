@@ -11,7 +11,7 @@ const fp =
 
 export const Azerbaijan: CustomLocale = {
   weekdays: {
-    shorthand: ["B.", "B.e.", "Ç.a.", "Ç.", "C.a.", "C.", "Ş."],
+    shorthand: ["Baz", "BzE", "ÇAx", "Çər", "CAx", "Cüm", "Şən"],
     longhand: [
       "Bazar",
       "Bazar ertəsi",

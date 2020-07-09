@@ -46,31 +46,13 @@ function monthSelectPlugin(pluginConfig?: Partial<Config>): Plugin {
     }
 
     function addListeners() {
-      fp._bind(fp.prevMonthNav, "click", e => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        const selectedMonth = fp.rContainer
-          ?.querySelector<ElementDate>(".flatpickr-monthSelect-month.selected")!
-          .dateObj.getMonth();
-
-        if (selectedMonth === 0) {
-          fp.currentYear--;
-        }
+      fp._bind(fp.prevMonthNav, "click", () => {
+        fp.currentYear -= 1;
         selectYear();
       });
 
-      fp._bind(fp.nextMonthNav, "click", e => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        const selectedMonth = fp.rContainer
-          ?.querySelector<ElementDate>(".flatpickr-monthSelect-month.selected")!
-          .dateObj.getMonth();
-
-        if (selectedMonth === 11) {
-          fp.currentYear++;
-        }
+      fp._bind(fp.nextMonthNav, "click", () => {
+        fp.currentYear += 1;
         selectYear();
       });
     }
@@ -144,7 +126,7 @@ function monthSelectPlugin(pluginConfig?: Partial<Config>): Plugin {
         }
         fp.currentYear = selectedDate.getFullYear();
         fp.currentYearElement.value = String(fp.currentYear);
-        fp.currentMonth = selectedDate.getMonth();
+        setCurrentlySelected();
       }
       if (fp.rContainer) {
         const months: NodeListOf<ElementDate> = fp.rContainer.querySelectorAll(
@@ -162,7 +144,6 @@ function monthSelectPlugin(pluginConfig?: Partial<Config>): Plugin {
           }
         });
       }
-      setCurrentlySelected();
     }
 
     function selectMonth(e: Event) {

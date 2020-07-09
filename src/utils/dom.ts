@@ -68,13 +68,11 @@ export function createNumberInput(
 }
 
 export function getEventTarget(event: Event): EventTarget | null {
-  try {
-    if (typeof event.composedPath === "function") {
-      const path = event.composedPath();
-      return path[0];
-    }
-    return event.target;
-  } catch (error) {
-    return event.target;
+  if (typeof event.composedPath === "function") {
+    const path = event.composedPath();
+
+    return path[0];
   }
+
+  return event.target;
 }
