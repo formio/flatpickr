@@ -1710,7 +1710,7 @@ function FlatpickrInstance(
             (self.daysContainer &&
               (eventTarget as DayElement).$i !== undefined) ||
             eventTarget === self.input ||
-            eventTarget === self.altInput
+            eventTarget === self.altInput || eventTarget === self.daysContainer
           ) {
             if (e.ctrlKey) {
               e.stopPropagation();
@@ -1720,9 +1720,11 @@ function FlatpickrInstance(
           } else if (eventTarget === self.currentYearElement) {
             changeYear(self.currentYear - delta);
           } else if (self.config.enableTime) {
-            if (!isTimeObj && self.hourElement) self.hourElement.focus();
-            updateTime(e);
-            self._debouncedChange();
+            if (eventTarget !== self.daysContainer) {
+              if (!isTimeObj && self.hourElement) self.hourElement.focus();
+              updateTime(e);
+              self._debouncedChange();
+            }
           }
 
           break;
