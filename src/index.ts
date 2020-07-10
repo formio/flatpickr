@@ -443,7 +443,7 @@ function FlatpickrInstance(
       bind(self.monthNav, "click", onClick(onMonthNavClick));
 
       bind(self.monthNav, ["keyup", "increment"], onYearInput);
-      bind(self.daysContainer, "click", onClick(selectDate));
+      bind(self.daysContainer, "mousedown", onClick(selectDate));
     }
 
     if (
