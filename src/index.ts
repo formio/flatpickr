@@ -1640,7 +1640,9 @@ function FlatpickrInstance(
       }
     } else if (e.keyCode === 27 && isInput) {
       e.preventDefault();
-      focusAndClose();
+      if (self.isOpen) {
+        focusAndClose();
+      }
     } else if (
       isCalendarElem(eventTarget as HTMLElement) ||
       allowKeydown ||
@@ -1933,16 +1935,6 @@ function FlatpickrInstance(
     if (self.config.enableTime === true && self.config.noCalendar === true) {
       if (self.selectedDates.length === 0) {
         setDefaultTime();
-      }
-
-      if (
-        self.config.allowInput === false &&
-        (e === undefined ||
-          !(self.timeContainer as HTMLDivElement).contains(
-            e.relatedTarget as Node
-          ))
-      ) {
-        setTimeout(() => (self.hourElement as HTMLInputElement).select(), 50);
       }
     }
   }
