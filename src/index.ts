@@ -1755,6 +1755,18 @@ function FlatpickrInstance(
           break;
 
         case 9:
+          if (!e.shiftKey && !self.config.enableTime &&
+             (eventTarget === self.daysContainer || isInView(document.activeElement || document.body))
+          ) {
+            e.preventDefault();
+            self._input.focus();
+            return;
+          }
+
+          if (!!self.timeContainer && eventTarget === self.daysContainer) {
+            self.showTimeInput = true;
+            return;
+          }
           if (isTimeObj) {
             const elems = ([
               self.hourElement,
