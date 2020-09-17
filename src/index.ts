@@ -1732,7 +1732,9 @@ function FlatpickrInstance(
           break;
 
         case 9:
-          if (!e.shiftKey && !self.config.enableTime && eventTarget === self.daysContainer) {
+          if (!e.shiftKey && !self.config.enableTime &&
+             (eventTarget === self.daysContainer || isInView(document.activeElement || document.body))
+          ) {
             e.preventDefault();
             self._input.focus();
             return;
