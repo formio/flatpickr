@@ -871,7 +871,7 @@
             if (self.daysContainer !== undefined) {
                 bind(self.monthNav, "click", onClick(onMonthNavClick));
                 bind(self.monthNav, ["keyup", "increment"], onYearInput);
-                bind(self.daysContainer, "click", onClick(selectDate));
+                bind(self.daysContainer, "mousedown", onClick(selectDate));
             }
             if (self.timeContainer !== undefined &&
                 self.minuteElement !== undefined &&
@@ -1640,17 +1640,25 @@
                 ? element.contains(eventTarget)
                 : eventTarget === self._input;
             var allowInput = self.config.allowInput;
-            var allowKeydown = self.isOpen && (!allowInput || !isInput);
+            var allowKeydown = self.isOpen && (!isInput);
             var allowInlineKeydown = self.config.inline && isInput && !allowInput;
             if (e.keyCode === 13 && isInput) {
                 if (allowInput) {
                     self.setDate(self._input.value, true, eventTarget === self.altInput
                         ? self.config.altFormat
                         : self.config.dateFormat);
-                    return eventTarget.blur();
+                    if (!self.isOpen) {
+                        self.open();
+                    }
                 }
                 else {
                     self.open();
+                }
+            }
+            else if (e.keyCode === 27 && isInput) {
+                e.preventDefault();
+                if (self.isOpen) {
+                    focusAndClose();
                 }
             }
             else if (isCalendarElem(eventTarget) ||
@@ -1688,8 +1696,7 @@
                         if (!isTimeObj && !isInput) {
                             e.preventDefault();
                             if (self.daysContainer !== undefined &&
-                                (allowInput === false ||
-                                    (document.activeElement && isInView(document.activeElement)))) {
+                                (document.activeElement && self.daysContainer.contains(document.activeElement))) {
                                 var delta_1 = e.keyCode === 39 ? 1 : -1;
                                 if (!e.ctrlKey)
                                     focusOnDay(undefined, delta_1);
@@ -1713,7 +1720,7 @@
                         if ((self.daysContainer &&
                             eventTarget.$i !== undefined) ||
                             eventTarget === self.input ||
-                            eventTarget === self.altInput) {
+                            eventTarget === self.altInput || eventTarget === self.daysContainer) {
                             if (e.ctrlKey) {
                                 e.stopPropagation();
                                 changeYear(self.currentYear - delta);
@@ -1726,14 +1733,17 @@
                             changeYear(self.currentYear - delta);
                         }
                         else if (self.config.enableTime) {
-                            if (!isTimeObj && self.hourElement)
-                                self.hourElement.focus();
-                            updateTime(e);
-                            self._debouncedChange();
+                            if (eventTarget !== self.daysContainer) {
+                                if (!isTimeObj && self.hourElement)
+                                    self.hourElement.focus();
+                                updateTime(e);
+                                self._debouncedChange();
+                            }
                         }
                         break;
                     case 9:
-                        if (!self.config.enableTime && eventTarget === self.daysContainer) {
+                        if (!e.shiftKey && !self.config.enableTime &&
+                            (eventTarget === self.daysContainer || isInView(document.activeElement || document.body))) {
                             e.preventDefault();
                             self._input.focus();
                             return;
@@ -1887,11 +1897,6 @@
             if (self.config.enableTime === true && self.config.noCalendar === true) {
                 if (self.selectedDates.length === 0) {
                     setDefaultTime();
-                }
-                if (self.config.allowInput === false &&
-                    (e === undefined ||
-                        !self.timeContainer.contains(e.relatedTarget))) {
-                    setTimeout(function () { return self.hourElement.select(); }, 50);
                 }
             }
         }
