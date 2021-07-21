@@ -44,7 +44,10 @@ export type RevFormat = Record<string, RevFormatFn>;
 export const revFormat: RevFormat = {
   D: doNothing,
   F: function(dateObj: Date, monthName: string, locale: Locale) {
-    dateObj.setMonth(locale.months.longhand.indexOf(monthName));
+    const monthNameFormatted = monthName && monthName.length ?
+        monthName[0].toUpperCase() + monthName.slice(1).toLowerCase()
+        : monthName;
+    dateObj.setMonth(locale.months.longhand.indexOf(monthNameFormatted));
   },
   G: (dateObj: Date, hour: string) => {
     dateObj.setHours(parseFloat(hour));
@@ -62,7 +65,10 @@ export const revFormat: RevFormat = {
     );
   },
   M: function(dateObj: Date, shortMonth: string, locale: Locale) {
-    dateObj.setMonth(locale.months.shorthand.indexOf(shortMonth));
+    const shortMonthFormatted = shortMonth && shortMonth.length ?
+        shortMonth[0].toUpperCase() + shortMonth.slice(1).toLowerCase()
+        : shortMonth;
+    dateObj.setMonth(locale.months.shorthand.indexOf(shortMonthFormatted));
   },
   S: (dateObj: Date, seconds: string) => {
     dateObj.setSeconds(parseFloat(seconds));
