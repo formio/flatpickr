@@ -1,4 +1,4 @@
-/* flatpickr v4.6.4, @license MIT */
+/* flatpickr v4.6.5, @license MIT */
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
     typeof define === 'function' && define.amd ? define(factory) :
@@ -279,7 +279,10 @@
     var revFormat = {
         D: doNothing,
         F: function (dateObj, monthName, locale) {
-            dateObj.setMonth(locale.months.longhand.indexOf(monthName));
+            var monthNameFormatted = monthName && monthName.length ?
+                monthName[0].toUpperCase() + monthName.slice(1).toLowerCase()
+                : monthName;
+            dateObj.setMonth(locale.months.longhand.indexOf(monthNameFormatted));
         },
         G: function (dateObj, hour) {
             dateObj.setHours(parseFloat(hour));
@@ -295,7 +298,10 @@
                 12 * int(new RegExp(locale.amPM[1], "i").test(amPM)));
         },
         M: function (dateObj, shortMonth, locale) {
-            dateObj.setMonth(locale.months.shorthand.indexOf(shortMonth));
+            var shortMonthFormatted = shortMonth && shortMonth.length ?
+                shortMonth[0].toUpperCase() + shortMonth.slice(1).toLowerCase()
+                : shortMonth;
+            dateObj.setMonth(locale.months.shorthand.indexOf(shortMonthFormatted));
         },
         S: function (dateObj, seconds) {
             dateObj.setSeconds(parseFloat(seconds));
