@@ -46,13 +46,31 @@ function monthSelectPlugin(pluginConfig?: Partial<Config>): Plugin {
     }
 
     function addListeners() {
-      fp._bind(fp.prevMonthNav, "click", () => {
-        fp.currentYear -= 1;
+      fp._bind(fp.prevMonthNav, "click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const selectedMonth = fp.rContainer
+          ?.querySelector<ElementDate>(".flatpickr-monthSelect-month.selected")!
+          .dateObj.getMonth();
+
+        if (selectedMonth === 0) {
+          fp.currentYear--;
+        }
         selectYear();
       });
 
-      fp._bind(fp.nextMonthNav, "click", () => {
-        fp.currentYear += 1;
+      fp._bind(fp.nextMonthNav, "click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const selectedMonth = fp.rContainer
+          ?.querySelector<ElementDate>(".flatpickr-monthSelect-month.selected")!
+          .dateObj.getMonth();
+
+        if (selectedMonth === 11) {
+          fp.currentYear++;
+        }
         selectYear();
       });
     }
@@ -126,13 +144,13 @@ function monthSelectPlugin(pluginConfig?: Partial<Config>): Plugin {
         }
         fp.currentYear = selectedDate.getFullYear();
         fp.currentYearElement.value = String(fp.currentYear);
-        setCurrentlySelected();
+        fp.currentMonth = selectedDate.getMonth();
       }
       if (fp.rContainer) {
         const months: NodeListOf<ElementDate> = fp.rContainer.querySelectorAll(
           ".flatpickr-monthSelect-month"
         );
-        months.forEach(month => {
+        months.forEach((month) => {
           month.dateObj.setFullYear(fp.currentYear);
           if (
             (fp.config.minDate && month.dateObj < fp.config.minDate) ||
@@ -144,6 +162,7 @@ function monthSelectPlugin(pluginConfig?: Partial<Config>): Plugin {
           }
         });
       }
+      setCurrentlySelected();
     }
 
     function selectMonth(e: Event) {
