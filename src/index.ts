@@ -1764,7 +1764,7 @@ function FlatpickrInstance(
           }
 
           if (!!self.timeContainer && eventTarget === self.daysContainer) {
-            self.showTimeInput = true;
+            (self as any).showTimeInput = true;
             return;
           }
           if (isTimeObj) {
