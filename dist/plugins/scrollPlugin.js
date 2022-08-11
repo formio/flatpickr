@@ -5,13 +5,32 @@
 }(this, (function () { 'use strict';
 
   function getEventTarget(event) {
-      if (typeof event.composedPath === "function") {
-          var path = event.composedPath();
-          return path[0];
+      try {
+          if (typeof event.composedPath === "function") {
+              var path = event.composedPath();
+              return path[0];
+          }
+          return event.target;
       }
-      return event.target;
+      catch (error) {
+          return event.target;
+      }
   }
 
+  if (typeof window.CustomEvent !== "function") {
+      function CustomEvent(typeArg, eventInitDict) {
+          eventInitDict = eventInitDict || {
+              bubbles: false,
+              cancelable: false,
+              detail: undefined,
+          };
+          var evt = document.createEvent("CustomEvent");
+          evt.initCustomEvent(typeArg, eventInitDict.bubbles, eventInitDict.cancelable, eventInitDict.detail);
+          return evt;
+      }
+      CustomEvent.prototype = window.Event.prototype;
+      window.CustomEvent = CustomEvent;
+  }
   function delta(e) {
       return Math.max(-1, Math.min(1, e.wheelDelta || -e.deltaY));
   }

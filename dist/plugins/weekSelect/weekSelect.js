@@ -5,11 +5,16 @@
 }(this, (function () { 'use strict';
 
   function getEventTarget(event) {
-      if (typeof event.composedPath === "function") {
-          var path = event.composedPath();
-          return path[0];
+      try {
+          if (typeof event.composedPath === "function") {
+              var path = event.composedPath();
+              return path[0];
+          }
+          return event.target;
       }
-      return event.target;
+      catch (error) {
+          return event.target;
+      }
   }
 
   function weekSelectPlugin() {

@@ -79,6 +79,7 @@
       _disable: [],
       _enable: [],
       allowInput: false,
+      allowInvalidPreload: false,
       altFormat: "F j, Y",
       altInput: false,
       altInputClass: "form-control input",

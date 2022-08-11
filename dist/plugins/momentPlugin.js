@@ -5,11 +5,16 @@
 }(this, (function () { 'use strict';
 
   function getEventTarget(event) {
-      if (typeof event.composedPath === "function") {
-          var path = event.composedPath();
-          return path[0];
+      try {
+          if (typeof event.composedPath === "function") {
+              var path = event.composedPath();
+              return path[0];
+          }
+          return event.target;
       }
-      return event.target;
+      catch (error) {
+          return event.target;
+      }
   }
 
   function momentPlugin(config) {
@@ -21,7 +26,7 @@
               var date = moment(fp.selectedDates[0]);
               var input = getEventTarget(event);
               var unit = Array.from(input.classList)
-                  .filter(function (name) { return name.startsWith('flatpickr-'); })
+                  .filter(function (name) { return name.startsWith("flatpickr-"); })
                   .map(function (name) { return name.substring(10); })[0];
               var step = parseFloat(input.getAttribute("step"));
               date.add(step * event.delta, unit);
@@ -34,27 +39,27 @@
               formatDate: function (date, format) {
                   // locale can also be used
                   var momentDate = moment(date);
-                  if (typeof fp.config.locale === 'string') {
+                  if (typeof fp.config.locale === "string") {
                       momentDate.locale(fp.config.locale);
                   }
                   return momentDate.format(format);
               },
               onReady: function () {
-                  [fp.hourElement, fp.minuteElement, fp.secondElement]
-                      .forEach(function (element) {
-                      return element && element.addEventListener('increment', captureIncrement, {
-                          capture: true
-                      });
+                  [fp.hourElement, fp.minuteElement, fp.secondElement].forEach(function (element) {
+                      return element &&
+                          element.addEventListener("increment", captureIncrement, {
+                              capture: true,
+                          });
                   });
               },
               onDestroy: function () {
-                  [fp.hourElement, fp.minuteElement, fp.secondElement]
-                      .forEach(function (element) {
-                      return element && element.removeEventListener('increment', captureIncrement, {
-                          capture: true
-                      });
+                  [fp.hourElement, fp.minuteElement, fp.secondElement].forEach(function (element) {
+                      return element &&
+                          element.removeEventListener("increment", captureIncrement, {
+                              capture: true,
+                          });
                   });
-              }
+              },
           };
       };
   }

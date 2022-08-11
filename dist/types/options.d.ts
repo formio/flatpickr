@@ -12,6 +12,7 @@ export declare const HOOKS: HookKey[];
 export declare type Plugin<E = {}> = (fp: Instance & E) => Options;
 export interface BaseOptions {
     allowInput: boolean;
+    allowInvalidPreload: boolean;
     altFormat: string;
     altInput: boolean;
     altInputClass: string;
@@ -82,6 +83,7 @@ export interface ParsedOptions {
     _minDate?: Date;
     _minTime?: Date;
     allowInput: boolean;
+    allowInvalidPreload: boolean;
     altFormat: string;
     altInput: boolean;
     altInputClass: string;
