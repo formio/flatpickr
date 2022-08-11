@@ -1744,7 +1744,7 @@ function FlatpickrInstance(
           }
 
           if (!!self.timeContainer && eventTarget === self.daysContainer) {
-            self.showTimeInput = true;
+            (self as any).showTimeInput = true;
             return;
           }
           if (isTimeObj) {
@@ -1924,7 +1924,13 @@ function FlatpickrInstance(
 
     if (self.config.enableTime === true && self.config.noCalendar === true) {
       if (self.selectedDates.length === 0) {
-        setDefaultTime();
+        self.setDate(
+          self.config.minDate !== undefined
+            ? new Date(self.config.minDate.getTime())
+            : new Date(),
+          false
+        );
+        updateValue();
       }
     }
   }
