@@ -1,8 +1,8 @@
 import flatpickr from "index";
-import { French } from "l10n/fr";
-import { Irish } from "l10n/ga";
-import { Japanese } from "l10n/ja";
-import { Russian } from "l10n/ru";
+import { French } from "l10n/flatpickr-fr";
+import { Irish } from "l10n/flatpickr-ga";
+import { Japanese } from "l10n/flatpickr-ja";
+import { Russian } from "l10n/flatpickr-ru";
 import { Instance, DayElement } from "types/instance";
 import { Options, DateRangeLimit } from "types/options";
 import confirmDatePlugin from "plugins/confirmDate/confirmDate";
