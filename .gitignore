@@ -4,5 +4,4 @@
 node_modules
 index.html
 coverage
-dist
 *.tsbuildinfo
