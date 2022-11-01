@@ -2,7 +2,7 @@ import flatpickr from "index";
 import monthSelectPlugin, {
   Config as PluginConfig,
 } from "plugins/monthSelect/index";
-import { German } from "l10n/de";
+import { German } from "l10n/flatpickr-de";
 import { Instance } from "types/instance";
 import { Options } from "types/options";
 
