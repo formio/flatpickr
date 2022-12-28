@@ -2507,7 +2507,7 @@ function FlatpickrInstance(
     self.selectedDates = (self.config.allowInvalidPreload
       ? dates
       : dates.filter(
-          (d) => d instanceof Date && isEnabled(d, false)
+          (d) => d instanceof Date && isEnabled(d, !self.config.enableTime)
         )) as Date[];
 
     if (self.config.mode === "range")
