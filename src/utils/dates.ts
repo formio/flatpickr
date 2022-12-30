@@ -81,6 +81,7 @@ export const createDateParser = ({ config = defaults, l10n = english }) => (
     } else {
       let matched,
         ops: { fn: RevFormatFn; val: string }[] = [];
+      const lastExecutedOps: { fn: RevFormatFn; val: string }[] = [];
 
       for (let i = 0, matchIndex = 0, regexStr = ""; i < format.length; i++) {
         const token = format[i] as token;
@@ -91,7 +92,8 @@ export const createDateParser = ({ config = defaults, l10n = english }) => (
           regexStr += tokenRegex[token];
           const match = new RegExp(regexStr, "i").exec(date);
           if (match && (matched = true)) {
-            ops[token !== "Y" ? "push" : "unshift"]({
+            const tokenOps = ['w', 'W'].includes(token) ? lastExecutedOps : ops;
+            tokenOps[token !== "Y" ? "push" : "unshift"]({
               fn: revFormat[token],
               val: match[++matchIndex],
             });
@@ -104,9 +106,9 @@ export const createDateParser = ({ config = defaults, l10n = english }) => (
           ? new Date(new Date().getFullYear(), 0, 1, 0, 0, 0, 0)
           : (new Date(new Date().setHours(0, 0, 0, 0)) as Date);
 
-      ops.forEach(
+      [...ops, ...lastExecutedOps].forEach(
         ({ fn, val }) =>
-          (parsedDate = fn(parsedDate as Date, val, locale) || parsedDate)
+          (parsedDate = fn(parsedDate as Date, val, locale, format) || parsedDate)
       );
 
       parsedDate = matched ? parsedDate : undefined;
