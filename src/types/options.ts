@@ -136,7 +136,7 @@ By default, Flatpickr utilizes native datetime widgets unless certain options (e
   formatDate: (date: Date, format: string, locale: Locale) => string;
 
   /* If "weekNumbers" are enabled, this is the function that outputs the week number for a given dates, optionally along with other text  */
-  getWeek: (date: Date) => string | number;
+  getWeek: (date: Date, locale?: any) => string | number;
 
   /*   Adjusts the step for the hour input (incl. scrolling) */
   hourIncrement: number;
@@ -301,7 +301,7 @@ export interface ParsedOptions {
   enableTime: boolean;
   errorHandler: (err: Error) => void;
   formatDate?: Options["formatDate"];
-  getWeek: (date: Date) => string | number;
+  getWeek: (date: Date, locale?: any) => string | number;
   hourIncrement: number;
   ignoredFocusElements: HTMLElement[];
   inline: boolean;
@@ -341,6 +341,17 @@ export interface ParsedOptions {
   wrap: boolean;
 }
 
+export function getDayNumber(date: Date, firstDayOfWeek: Number) {
+  switch(firstDayOfWeek) {
+    case 0:
+      return date.getDay() % 7;
+    case 6:
+      return (date.getDay() + 8) % 7;
+    default:
+      return (date.getDay() + 6) % 7;
+  }
+}
+
 export const defaults: ParsedOptions = {
   _disable: [],
   allowInput: false,
@@ -366,12 +377,14 @@ export const defaults: ParsedOptions = {
   enableTime: false,
   errorHandler: (err: Error) =>
     typeof console !== "undefined" && console.warn(err),
-  getWeek: (givenDate: Date) => {
+  getWeek: (givenDate: Date, locale?:any) => {
+    const firstDayOfWeek = locale?.firstDayOfWeek || 0;
+
     const date = new Date(givenDate.getTime());
     date.setHours(0, 0, 0, 0);
 
     // Thursday in current week decides the year.
-    date.setDate(date.getDate() + 3 - ((date.getDay() + 6) % 7));
+    date.setDate(date.getDate() + 3 - getDayNumber(date, firstDayOfWeek));
 
     // January 4 is always in week 1.
     var week1 = new Date(date.getFullYear(), 0, 4);
@@ -382,7 +395,7 @@ export const defaults: ParsedOptions = {
       Math.round(
         ((date.getTime() - week1.getTime()) / 86400000 -
           3 +
-          ((week1.getDay() + 6) % 7)) /
+          (getDayNumber(week1, firstDayOfWeek))) /
           7
       )
     );

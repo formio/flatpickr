@@ -744,9 +744,10 @@ function FlatpickrInstance(
       className !== "prevMonthDay" &&
       i % 7 === 6
     ) {
+
       self.weekNumbers.insertAdjacentHTML(
         "beforeend",
-        "<span class='flatpickr-day'>" + self.config.getWeek(date) + "</span>"
+        "<span class='flatpickr-day'>" + self.config.getWeek(date, self.l10n) + "</span>"
       );
     }
 

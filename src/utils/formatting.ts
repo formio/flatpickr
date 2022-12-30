@@ -1,6 +1,6 @@
 import { int, pad } from "../utils";
 import { Locale } from "../types/locale";
-import { ParsedOptions } from "../types/options";
+import { ParsedOptions, getDayNumber} from "../types/options";
 
 export type token =
   | "D"
@@ -38,7 +38,8 @@ export const monthToStr = (
 export type RevFormatFn = (
   date: Date,
   data: string,
-  locale: Locale
+  locale: Locale,
+  format: string
 ) => Date | void | undefined;
 export type RevFormat = Record<string, RevFormatFn>;
 export const revFormat: RevFormat = {
@@ -75,18 +76,29 @@ export const revFormat: RevFormat = {
   },
   U: (_: Date, unixSeconds: string) => new Date(parseFloat(unixSeconds) * 1000),
 
-  W: function (dateObj: Date, weekNum: string, locale: Locale) {
+  W: function (dateObj: Date, weekNum: string, locale: Locale, format: string) {
     const weekNumber = parseInt(weekNum);
-    const date = new Date(
-      dateObj.getFullYear(),
-      0,
-      2 + (weekNumber - 1) * 7,
-      0,
-      0,
-      0,
-      0
-    );
-    date.setDate(date.getDate() - date.getDay() + locale.firstDayOfWeek);
+
+    const date = new Date(dateObj);
+    date.setMonth(0);
+    date.setDate(2 + (weekNumber - 1) * 7);
+
+    const firstWeekDay = date.getDate() - date.getDay() + locale.firstDayOfWeek;
+    const firstWeekDate = new Date(date); 
+    firstWeekDate.setDate(firstWeekDay);
+    const lastWeekDate = new Date(date); 
+    lastWeekDate.setDate(firstWeekDay + 6);
+
+    if (firstWeekDate.getTime() <= dateObj.getTime() && dateObj.getTime() <= lastWeekDate.getTime()) {
+      return dateObj;
+    }
+
+    if (format.includes('w') && format.indexOf('w') < format.indexOf('W')) {
+      date.setDate(firstWeekDay + Math.abs(getDayNumber(firstWeekDate, locale.firstDayOfWeek) - getDayNumber(dateObj, locale.firstDayOfWeek)))
+    }
+    else {
+      date.setDate(firstWeekDay);
+    }
 
     return date;
   },
@@ -119,7 +131,24 @@ export const revFormat: RevFormat = {
   },
   u: (_: Date, unixMillSeconds: string) =>
     new Date(parseFloat(unixMillSeconds)),
-  w: doNothing,
+  w: (dateObj: Date, day: string, _locale, format) => {
+    const currentDayNumber = dateObj.getDay();
+    const expectedDayNumber = parseFloat(day);
+
+    if (currentDayNumber === expectedDayNumber) return;
+
+    const currentMonth = dateObj.getMonth();
+    const dateCopy = new Date(dateObj);
+    const monthDayCorrespondingToExpectedDayNumber = dateObj.getDate() - currentDayNumber + expectedDayNumber;
+    dateCopy.setDate(monthDayCorrespondingToExpectedDayNumber);
+
+    const weekNumberSet = format.includes('W') && format.indexOf('w') > format.indexOf('W');
+    dateObj.setDate(
+      dateCopy.getMonth() !== currentMonth && !weekNumberSet 
+        ? monthDayCorrespondingToExpectedDayNumber + 7 
+        : monthDayCorrespondingToExpectedDayNumber
+    );
+  },
   y: (dateObj: Date, year: string) => {
     dateObj.setFullYear(2000 + parseFloat(year));
   },
@@ -206,7 +235,7 @@ export const formats: Formats = {
   U: (date: Date) => date.getTime() / 1000,
 
   W: function (date: Date, _: Locale, options: ParsedOptions) {
-    return options.getWeek(date);
+    return options.getWeek(date, _);
   },
 
   // full year e.g. 2016, padded (0001-9999)
