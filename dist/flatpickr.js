@@ -1,4 +1,4 @@
-/* flatpickr v4.6.13-formio.1, @license MIT */
+/* flatpickr v4.6.13-formio.2, @license MIT */
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
     typeof define === 'function' && define.amd ? define(factory) :
@@ -494,7 +494,7 @@
                         var escaped = format[i - 1] === "\\" || isBackSlash;
                         if (tokenRegex[token_1] && !escaped) {
                             regexStr += tokenRegex[token_1];
-                            var match = new RegExp(regexStr).exec(date);
+                            var match = new RegExp(regexStr, "i").exec(date);
                             if (match && (matched = true)) {
                                 ops[token_1 !== "Y" ? "push" : "unshift"]({
                                     fn: revFormat[token_1],

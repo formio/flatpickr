@@ -1,4 +1,4 @@
-## [Unreleased: 4.6.13-formio.2]
+## 4.6.13-formio.2
 ### Fixed
  - FIO-2088: made date case insensitive when entering date manually
 

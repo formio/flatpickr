@@ -55,7 +55,7 @@ export var createDateParser = function (_a) {
                     var escaped = format[i - 1] === "\\" || isBackSlash;
                     if (tokenRegex[token] && !escaped) {
                         regexStr += tokenRegex[token];
-                        var match = new RegExp(regexStr).exec(date);
+                        var match = new RegExp(regexStr, "i").exec(date);
                         if (match && (matched = true)) {
                             ops[token !== "Y" ? "push" : "unshift"]({
                                 fn: revFormat[token],
