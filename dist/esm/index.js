@@ -1680,7 +1680,7 @@ function FlatpickrInstance(element, instanceConfig) {
             self.config.errorHandler(new Error("Invalid date supplied: ".concat(JSON.stringify(inputDate))));
         self.selectedDates = (self.config.allowInvalidPreload
             ? dates
-            : dates.filter(function (d) { return d instanceof Date && isEnabled(d, false); }));
+            : dates.filter(function (d) { return d instanceof Date && isEnabled(d, !self.config.enableTime); }));
         if (self.config.mode === "range")
             self.selectedDates.sort(function (a, b) { return a.getTime() - b.getTime(); });
     }

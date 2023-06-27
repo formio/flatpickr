@@ -1,4 +1,4 @@
-/* flatpickr v4.6.13-formio.2, @license MIT */
+/* flatpickr v4.6.13-formio.3, @license MIT */
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
     typeof define === 'function' && define.amd ? define(factory) :
@@ -2340,7 +2340,7 @@
                 self.config.errorHandler(new Error("Invalid date supplied: ".concat(JSON.stringify(inputDate))));
             self.selectedDates = (self.config.allowInvalidPreload
                 ? dates
-                : dates.filter(function (d) { return d instanceof Date && isEnabled(d, false); }));
+                : dates.filter(function (d) { return d instanceof Date && isEnabled(d, !self.config.enableTime); }));
             if (self.config.mode === "range")
                 self.selectedDates.sort(function (a, b) { return a.getTime() - b.getTime(); });
         }
