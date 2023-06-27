@@ -1,3 +1,8 @@
+
+## [UNRELEASED: 4.6.13-formio.3]
+### Fixed
+ - FIO-5857 Fixed issue with saving date when minDate was set with moment
+   
 ## 4.6.13-formio.2
 ### Fixed
  - FIO-2088: made date case insensitive when entering date manually
