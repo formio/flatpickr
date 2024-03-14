@@ -1,4 +1,7 @@
-
+## [Unreleased: 4.6.13-formio.4]
+### Fixed 
+ - FIO-5910: fixed an issue where dates with w and W formats are not correctly parsed
+   
 ## 4.6.13-formio.3
 ### Fixed
  - FIO-5857 Fixed issue with saving date when minDate was set with moment
