@@ -1,4 +1,4 @@
-/* flatpickr v4.6.13-formio.3, @license MIT */
+/* flatpickr v4.6.13-formio.4, @license MIT */
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
     typeof define === 'function' && define.amd ? define(factory) :
@@ -55,6 +55,16 @@
         "onYearChange",
         "onPreCalendarPosition",
     ];
+    function getDayNumber(date, firstDayOfWeek) {
+        switch (firstDayOfWeek) {
+            case 0:
+                return date.getDay() % 7;
+            case 6:
+                return (date.getDay() + 8) % 7;
+            default:
+                return (date.getDay() + 6) % 7;
+        }
+    }
     var defaults = {
         _disable: [],
         allowInput: false,
@@ -80,18 +90,19 @@
         errorHandler: function (err) {
             return typeof console !== "undefined" && console.warn(err);
         },
-        getWeek: function (givenDate) {
+        getWeek: function (givenDate, locale) {
+            var firstDayOfWeek = (locale === null || locale === void 0 ? void 0 : locale.firstDayOfWeek) || 0;
             var date = new Date(givenDate.getTime());
             date.setHours(0, 0, 0, 0);
             // Thursday in current week decides the year.
-            date.setDate(date.getDate() + 3 - ((date.getDay() + 6) % 7));
+            date.setDate(date.getDate() + 3 - getDayNumber(date, firstDayOfWeek));
             // January 4 is always in week 1.
             var week1 = new Date(date.getFullYear(), 0, 4);
             // Adjust to Thursday in week 1 and count number of weeks from date to week1.
             return (1 +
                 Math.round(((date.getTime() - week1.getTime()) / 86400000 -
                     3 +
-                    ((week1.getDay() + 6) % 7)) /
+                    (getDayNumber(week1, firstDayOfWeek))) /
                     7));
         },
         hourIncrement: 1,
@@ -307,10 +318,25 @@
             dateObj.setSeconds(parseFloat(seconds));
         },
         U: function (_, unixSeconds) { return new Date(parseFloat(unixSeconds) * 1000); },
-        W: function (dateObj, weekNum, locale) {
+        W: function (dateObj, weekNum, locale, format) {
             var weekNumber = parseInt(weekNum);
-            var date = new Date(dateObj.getFullYear(), 0, 2 + (weekNumber - 1) * 7, 0, 0, 0, 0);
-            date.setDate(date.getDate() - date.getDay() + locale.firstDayOfWeek);
+            var date = new Date(dateObj);
+            date.setMonth(0);
+            date.setDate(2 + (weekNumber - 1) * 7);
+            var firstWeekDay = date.getDate() - date.getDay() + locale.firstDayOfWeek;
+            var firstWeekDate = new Date(date);
+            firstWeekDate.setDate(firstWeekDay);
+            var lastWeekDate = new Date(date);
+            lastWeekDate.setDate(firstWeekDay + 6);
+            if (firstWeekDate.getTime() <= dateObj.getTime() && dateObj.getTime() <= lastWeekDate.getTime()) {
+                return dateObj;
+            }
+            if (format.includes('w') && format.indexOf('w') < format.indexOf('W')) {
+                date.setDate(firstWeekDay + Math.abs(getDayNumber(firstWeekDate, locale.firstDayOfWeek) - getDayNumber(dateObj, locale.firstDayOfWeek)));
+            }
+            else {
+                date.setDate(firstWeekDay);
+            }
             return date;
         },
         Y: function (dateObj, year) {
@@ -342,7 +368,20 @@
         u: function (_, unixMillSeconds) {
             return new Date(parseFloat(unixMillSeconds));
         },
-        w: doNothing,
+        w: function (dateObj, day, _locale, format) {
+            var currentDayNumber = dateObj.getDay();
+            var expectedDayNumber = parseFloat(day);
+            if (currentDayNumber === expectedDayNumber)
+                return;
+            var currentMonth = dateObj.getMonth();
+            var dateCopy = new Date(dateObj);
+            var monthDayCorrespondingToExpectedDayNumber = dateObj.getDate() - currentDayNumber + expectedDayNumber;
+            dateCopy.setDate(monthDayCorrespondingToExpectedDayNumber);
+            var weekNumberSet = format.includes('W') && format.indexOf('w') > format.indexOf('W');
+            dateObj.setDate(dateCopy.getMonth() !== currentMonth && !weekNumberSet
+                ? monthDayCorrespondingToExpectedDayNumber + 7
+                : monthDayCorrespondingToExpectedDayNumber);
+        },
         y: function (dateObj, year) {
             dateObj.setFullYear(2000 + parseFloat(year));
         },
@@ -406,7 +445,7 @@
         // unix timestamp
         U: function (date) { return date.getTime() / 1000; },
         W: function (date, _, options) {
-            return options.getWeek(date);
+            return options.getWeek(date, _);
         },
         // full year e.g. 2016, padded (0001-9999)
         Y: function (date) { return pad(date.getFullYear(), 4); },
@@ -472,14 +511,14 @@
                 parsedDate = new Date(date);
             else if (typeof date === "string") {
                 // date string
-                var format = givenFormat || (config || defaults).dateFormat;
+                var format_1 = givenFormat || (config || defaults).dateFormat;
                 var datestr = String(date).trim();
                 if (datestr === "today") {
                     parsedDate = new Date();
                     timeless = true;
                 }
                 else if (config && config.parseDate) {
-                    parsedDate = config.parseDate(date, format);
+                    parsedDate = config.parseDate(date, format_1);
                 }
                 else if (/Z$/.test(datestr) ||
                     /GMT$/.test(datestr) // datestrings w/ timezone
@@ -488,15 +527,17 @@
                 }
                 else {
                     var matched = void 0, ops = [];
-                    for (var i = 0, matchIndex = 0, regexStr = ""; i < format.length; i++) {
-                        var token_1 = format[i];
+                    var lastExecutedOps = [];
+                    for (var i = 0, matchIndex = 0, regexStr = ""; i < format_1.length; i++) {
+                        var token_1 = format_1[i];
                         var isBackSlash = token_1 === "\\";
-                        var escaped = format[i - 1] === "\\" || isBackSlash;
+                        var escaped = format_1[i - 1] === "\\" || isBackSlash;
                         if (tokenRegex[token_1] && !escaped) {
                             regexStr += tokenRegex[token_1];
                             var match = new RegExp(regexStr, "i").exec(date);
                             if (match && (matched = true)) {
-                                ops[token_1 !== "Y" ? "push" : "unshift"]({
+                                var tokenOps = ['w', 'W'].includes(token_1) ? lastExecutedOps : ops;
+                                tokenOps[token_1 !== "Y" ? "push" : "unshift"]({
                                     fn: revFormat[token_1],
                                     val: match[++matchIndex],
                                 });
@@ -509,9 +550,9 @@
                         !config || !config.noCalendar
                             ? new Date(new Date().getFullYear(), 0, 1, 0, 0, 0, 0)
                             : new Date(new Date().setHours(0, 0, 0, 0));
-                    ops.forEach(function (_a) {
+                    __spreadArray(__spreadArray([], ops, true), lastExecutedOps, true).forEach(function (_a) {
                         var fn = _a.fn, val = _a.val;
-                        return (parsedDate = fn(parsedDate, val, locale) || parsedDate);
+                        return (parsedDate = fn(parsedDate, val, locale, format_1) || parsedDate);
                     });
                     parsedDate = matched ? parsedDate : undefined;
                 }
@@ -1088,7 +1129,7 @@
                 self.config.showMonths === 1 &&
                 className !== "prevMonthDay" &&
                 i % 7 === 6) {
-                self.weekNumbers.insertAdjacentHTML("beforeend", "<span class='flatpickr-day'>" + self.config.getWeek(date) + "</span>");
+                self.weekNumbers.insertAdjacentHTML("beforeend", "<span class='flatpickr-day'>" + self.config.getWeek(date, self.l10n) + "</span>");
             }
             triggerEvent("onDayCreate", dayElement);
             return dayElement;

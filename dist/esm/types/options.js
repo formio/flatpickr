@@ -12,6 +12,16 @@ export var HOOKS = [
     "onYearChange",
     "onPreCalendarPosition",
 ];
+export function getDayNumber(date, firstDayOfWeek) {
+    switch (firstDayOfWeek) {
+        case 0:
+            return date.getDay() % 7;
+        case 6:
+            return (date.getDay() + 8) % 7;
+        default:
+            return (date.getDay() + 6) % 7;
+    }
+}
 export var defaults = {
     _disable: [],
     allowInput: false,
@@ -37,15 +47,16 @@ export var defaults = {
     errorHandler: function (err) {
         return typeof console !== "undefined" && console.warn(err);
     },
-    getWeek: function (givenDate) {
+    getWeek: function (givenDate, locale) {
+        var firstDayOfWeek = (locale === null || locale === void 0 ? void 0 : locale.firstDayOfWeek) || 0;
         var date = new Date(givenDate.getTime());
         date.setHours(0, 0, 0, 0);
-        date.setDate(date.getDate() + 3 - ((date.getDay() + 6) % 7));
+        date.setDate(date.getDate() + 3 - getDayNumber(date, firstDayOfWeek));
         var week1 = new Date(date.getFullYear(), 0, 4);
         return (1 +
             Math.round(((date.getTime() - week1.getTime()) / 86400000 -
                 3 +
-                ((week1.getDay() + 6) % 7)) /
+                (getDayNumber(week1, firstDayOfWeek))) /
                 7));
     },
     hourIncrement: 1,

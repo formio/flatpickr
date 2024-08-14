@@ -35,7 +35,7 @@ export interface BaseOptions {
     enableTime: boolean;
     errorHandler: (e: Error) => void;
     formatDate: (date: Date, format: string, locale: Locale) => string;
-    getWeek: (date: Date) => string | number;
+    getWeek: (date: Date, locale?: any) => string | number;
     hourIncrement: number;
     ignoredFocusElements: HTMLElement[];
     inline: boolean;
@@ -106,7 +106,7 @@ export interface ParsedOptions {
     enableTime: boolean;
     errorHandler: (err: Error) => void;
     formatDate?: Options["formatDate"];
-    getWeek: (date: Date) => string | number;
+    getWeek: (date: Date, locale?: any) => string | number;
     hourIncrement: number;
     ignoredFocusElements: HTMLElement[];
     inline: boolean;
@@ -145,4 +145,5 @@ export interface ParsedOptions {
     weekNumbers: boolean;
     wrap: boolean;
 }
+export declare function getDayNumber(date: Date, firstDayOfWeek: Number): number;
 export declare const defaults: ParsedOptions;

@@ -1,6 +1,6 @@
 {
   "name": "flatpickr-formio",
-  "version": "4.6.13-formio.3",
+  "version": "4.6.13-formio.4",
   "description": "A lightweight, powerful javascript datetime picker",
   "scripts": {
     "build": "run-s build:pre build:build build:esm build:types build:post",

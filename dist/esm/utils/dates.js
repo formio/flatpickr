@@ -1,3 +1,12 @@
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
 import { tokenRegex, revFormat, formats, } from "./formatting";
 import { defaults } from "../types/options";
 import { english } from "../l10n/default";
@@ -34,14 +43,14 @@ export var createDateParser = function (_a) {
             date.toFixed !== undefined)
             parsedDate = new Date(date);
         else if (typeof date === "string") {
-            var format = givenFormat || (config || defaults).dateFormat;
+            var format_1 = givenFormat || (config || defaults).dateFormat;
             var datestr = String(date).trim();
             if (datestr === "today") {
                 parsedDate = new Date();
                 timeless = true;
             }
             else if (config && config.parseDate) {
-                parsedDate = config.parseDate(date, format);
+                parsedDate = config.parseDate(date, format_1);
             }
             else if (/Z$/.test(datestr) ||
                 /GMT$/.test(datestr)) {
@@ -49,15 +58,17 @@ export var createDateParser = function (_a) {
             }
             else {
                 var matched = void 0, ops = [];
-                for (var i = 0, matchIndex = 0, regexStr = ""; i < format.length; i++) {
-                    var token = format[i];
+                var lastExecutedOps = [];
+                for (var i = 0, matchIndex = 0, regexStr = ""; i < format_1.length; i++) {
+                    var token = format_1[i];
                     var isBackSlash = token === "\\";
-                    var escaped = format[i - 1] === "\\" || isBackSlash;
+                    var escaped = format_1[i - 1] === "\\" || isBackSlash;
                     if (tokenRegex[token] && !escaped) {
                         regexStr += tokenRegex[token];
                         var match = new RegExp(regexStr, "i").exec(date);
                         if (match && (matched = true)) {
-                            ops[token !== "Y" ? "push" : "unshift"]({
+                            var tokenOps = ['w', 'W'].includes(token) ? lastExecutedOps : ops;
+                            tokenOps[token !== "Y" ? "push" : "unshift"]({
                                 fn: revFormat[token],
                                 val: match[++matchIndex],
                             });
@@ -70,9 +81,9 @@ export var createDateParser = function (_a) {
                     !config || !config.noCalendar
                         ? new Date(new Date().getFullYear(), 0, 1, 0, 0, 0, 0)
                         : new Date(new Date().setHours(0, 0, 0, 0));
-                ops.forEach(function (_a) {
+                __spreadArray(__spreadArray([], ops, true), lastExecutedOps, true).forEach(function (_a) {
                     var fn = _a.fn, val = _a.val;
-                    return (parsedDate = fn(parsedDate, val, locale) || parsedDate);
+                    return (parsedDate = fn(parsedDate, val, locale, format_1) || parsedDate);
                 });
                 parsedDate = matched ? parsedDate : undefined;
             }

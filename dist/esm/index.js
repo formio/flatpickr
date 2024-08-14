@@ -454,7 +454,7 @@ function FlatpickrInstance(element, instanceConfig) {
             self.config.showMonths === 1 &&
             className !== "prevMonthDay" &&
             i % 7 === 6) {
-            self.weekNumbers.insertAdjacentHTML("beforeend", "<span class='flatpickr-day'>" + self.config.getWeek(date) + "</span>");
+            self.weekNumbers.insertAdjacentHTML("beforeend", "<span class='flatpickr-day'>" + self.config.getWeek(date, self.l10n) + "</span>");
         }
         triggerEvent("onDayCreate", dayElement);
         return dayElement;

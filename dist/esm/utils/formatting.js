@@ -1,4 +1,5 @@
 import { int, pad } from "../utils";
+import { getDayNumber } from "../types/options";
 var doNothing = function () { return undefined; };
 export var monthToStr = function (monthNumber, shorthand, locale) { return locale.months[shorthand ? "shorthand" : "longhand"][monthNumber]; };
 export var revFormat = {
@@ -32,10 +33,25 @@ export var revFormat = {
         dateObj.setSeconds(parseFloat(seconds));
     },
     U: function (_, unixSeconds) { return new Date(parseFloat(unixSeconds) * 1000); },
-    W: function (dateObj, weekNum, locale) {
+    W: function (dateObj, weekNum, locale, format) {
         var weekNumber = parseInt(weekNum);
-        var date = new Date(dateObj.getFullYear(), 0, 2 + (weekNumber - 1) * 7, 0, 0, 0, 0);
-        date.setDate(date.getDate() - date.getDay() + locale.firstDayOfWeek);
+        var date = new Date(dateObj);
+        date.setMonth(0);
+        date.setDate(2 + (weekNumber - 1) * 7);
+        var firstWeekDay = date.getDate() - date.getDay() + locale.firstDayOfWeek;
+        var firstWeekDate = new Date(date);
+        firstWeekDate.setDate(firstWeekDay);
+        var lastWeekDate = new Date(date);
+        lastWeekDate.setDate(firstWeekDay + 6);
+        if (firstWeekDate.getTime() <= dateObj.getTime() && dateObj.getTime() <= lastWeekDate.getTime()) {
+            return dateObj;
+        }
+        if (format.includes('w') && format.indexOf('w') < format.indexOf('W')) {
+            date.setDate(firstWeekDay + Math.abs(getDayNumber(firstWeekDate, locale.firstDayOfWeek) - getDayNumber(dateObj, locale.firstDayOfWeek)));
+        }
+        else {
+            date.setDate(firstWeekDay);
+        }
         return date;
     },
     Y: function (dateObj, year) {
@@ -67,7 +83,20 @@ export var revFormat = {
     u: function (_, unixMillSeconds) {
         return new Date(parseFloat(unixMillSeconds));
     },
-    w: doNothing,
+    w: function (dateObj, day, _locale, format) {
+        var currentDayNumber = dateObj.getDay();
+        var expectedDayNumber = parseFloat(day);
+        if (currentDayNumber === expectedDayNumber)
+            return;
+        var currentMonth = dateObj.getMonth();
+        var dateCopy = new Date(dateObj);
+        var monthDayCorrespondingToExpectedDayNumber = dateObj.getDate() - currentDayNumber + expectedDayNumber;
+        dateCopy.setDate(monthDayCorrespondingToExpectedDayNumber);
+        var weekNumberSet = format.includes('W') && format.indexOf('w') > format.indexOf('W');
+        dateObj.setDate(dateCopy.getMonth() !== currentMonth && !weekNumberSet
+            ? monthDayCorrespondingToExpectedDayNumber + 7
+            : monthDayCorrespondingToExpectedDayNumber);
+    },
     y: function (dateObj, year) {
         dateObj.setFullYear(2000 + parseFloat(year));
     },
@@ -121,7 +150,7 @@ export var formats = {
     S: function (date) { return pad(date.getSeconds()); },
     U: function (date) { return date.getTime() / 1000; },
     W: function (date, _, options) {
-        return options.getWeek(date);
+        return options.getWeek(date, _);
     },
     Y: function (date) { return pad(date.getFullYear(), 4); },
     d: function (date) { return pad(date.getDate()); },
